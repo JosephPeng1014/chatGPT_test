@@ -22,6 +22,8 @@ export default async function handler(
 ) {
   const prompt = req.body.prompt
 
+  console.log('prompt', prompt)
+
   if(!prompt || prompt==='') {
     return new Response('Please send your prompt', { status: 400 })
   }
@@ -29,6 +31,15 @@ export default async function handler(
   const aiResult = await openai.createCompletion({
     model: 'text-davinci-003',
     prompt: `${prompt}`,
-    temperature: 0.9
-  })
+    temperature: 0.9,
+    max_tokens: 2048,
+    n:3,
+    frequency_penalty: 0.5,
+    presence_penalty: 0
+  });
+
+  console.log('aiResult.data', aiResult.data)
+
+  const response = aiResult.data.choices[0].text?.trim() || 'Sorry, there was a problem!';
+  res.status(200).json({ text: response });
 }
